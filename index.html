@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleek Scientific Calculator</title>
+  <style>
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(-45deg, #0f172a, #1e1b4b, #2e1065, #0f172a);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f8fafc;
+      font-family: 'Rockwell', 'Rockwell Nova', 'Courier New', Georgia, serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* THE CALCULATOR BODY (GLASSMORPHISM) */
+    .calculator-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      width: 95%;
+      max-width: 400px;
+      padding: 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* SINGLE BOLDED AND CLEAR SCREEN DISPLAY */
+    .screen {
+      width: 100%;
+      height: 90px;
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 24px;
+      box-sizing: border-box;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    /* Big, Bold, and scannable text string tracking values */
+    #display-view {
+      font-size: 40px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 1px;
+    }
+
+    /* THE THE BUTTONS GRID (Changed to 4 columns, automatically stacks rows) */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    /* STANDARD BUTTON STYLE */
+    .btn {
+      background-color: rgba(51, 65, 85, 0.5);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 18px 10px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Hover effects */
+    .btn:hover {
+      background-color: rgba(71, 85, 105, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* SPECIAL COLOR CATEGORIES */
+    .btn-clear {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+    .btn-clear:hover { background-color: rgba(239, 68, 68, 0.4); }
+
+    .btn-operator, .btn-sci {
+      background-color: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+    .btn-operator:hover, .btn-sci:hover { background-color: rgba(56, 189, 248, 0.3); }
+
+    .btn-equal {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 22px;
+    }
+    .btn-equal:hover {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator-card">
+    <!-- THE SIMPLIFIED DISPLAY BAR -->
+    <div class="screen">
+      <div id="display-view">0</div>
+    </div>
+
+    <div class="buttons-grid">
+      <!-- Scientific Functions Row 1 -->
+      <button class="btn btn-sci" onclick="runInstantMath('square')">x²</button>
+      <button class="btn btn-sci" onclick="runInstantMath('cube')">x³</button>
+      <button class="btn btn-sci" onclick="runInstantMath('sqrt')">√x</button>
+      <button class="btn btn-sci" onclick="runInstantMath('cbrt')">³√x</button>
+
+      <!-- Utility Controls Row 2 -->
+      <button class="btn btn-clear" onclick="clearScreen()">C</button>
+      <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+      <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+      <button class="btn btn-operator" onclick="deleteLast()">⌫</button>
+
+      <!-- Grid Numbers and Core Math Operators -->
+      <button class="btn" onclick="appendNumber('7')">7</button>
+      <button class="btn" onclick="appendNumber('8')">8</button>
+      <button class="btn" onclick="appendNumber('9')">9</button>
+      <button class="btn btn-operator" onclick="appendOperator('-')">−</button>
+
+      <button class="btn" onclick="appendNumber('4')">4</button>
+      <button class="btn" onclick="appendNumber('5')">5</button>
+      <button class="btn" onclick="appendNumber('6')">6</button>
+      <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+
+      <button class="btn" onclick="appendNumber('1')">1</button>
+      <button class="btn" onclick="appendNumber('2')">2</button>
+      <button class="btn" onclick="appendNumber('3')">3</button>
+      <button class="btn btn-equal" style="grid-row: span 2; height: 100%;" onclick="calculate()">=</button>
+
+      <button class="btn" style="grid-column: span 2;" onclick="appendNumber('0')">0</button>
+      <button class="btn" onclick="appendDecimal('.')">.</button>
+    </div>
+  </div>
+
+  <script>
+    const displayView = document.getElementById('display-view');
+    
+    let currentInput = '';
+    let hasCalculated = false;
+
+    function appendNumber(num) {
+      if (hasCalculated) {
+        currentInput = num;
+        hasCalculated = false;
+      } else {
+        currentInput += num;
+      }
+      updateScreen();
+    }
+
+    function appendOperator(op) {
+      if (currentInput === '') {
+        if (op === '-') {
+          currentInput = '-';
+          updateScreen();
+        }
+        return;
+      }
+      
+      const lastChar = currentInput.slice(-1);
+      if (['+', '-', '*', '/'].includes(lastChar)) {
+        currentInput = currentInput.slice(0, -1) + op;
+      } else {
+        currentInput += op;
+      }
+      hasCalculated = false;
+      updateScreen();
+    }
+
+    function appendDecimal(dot) {
+      if (hasCalculated) {
+        currentInput = '0.';
+        hasCalculated = false;
+        updateScreen();
+        return;
+      }
+
+      const parts = currentInput.split(/[\+\-\*\/]/);
+      const currentPart = parts[parts.length - 1];
+      
+      if (!currentPart.includes('.')) {
+        currentInput += currentPart === '' ? '0.' : dot;
+      }
+      updateScreen();
+    }
+
+    function clearScreen() {
+      currentInput = '';
+      displayView.innerText = '0';
+    }
+
+    function deleteLast() {
+      if (hasCalculated) {
+        clearScreen();
+        hasCalculated = false;
+        return;
+      }
+      currentInput = currentInput.toString().slice(0, -1);
+      updateScreen();
+    }
+
+    // UPDATES THE SINGLE PRIMARY BOLD VIEW SCREEN
+    function updateScreen() {
+      if (currentInput === '' || currentInput === '-') {
+        displayView.innerText = currentInput === '-' ? '-' : '0';
+        return;
+      }
+
+      // Format plain code characters to clean math symbols for presentation
+      let formatted = currentInput
+        .replace(/\*/g, '×')
+        .replace(/\//g, '÷')
+        .replace(/-/g, '−')
+        .replace(/\+/g, '+');
+
+      displayView.innerText = formatted;
+    }
+
+    // EVALUATES THE COMPLETE EXPRESSION
+    function calculate() {
+      if (currentInput === '' || currentInput === '-') return;
+
+      try {
+        let cleanInput = currentInput;
+        if (['+', '-', '*', '/'].includes(cleanInput.slice(-1))) {
+          cleanInput = cleanInput.slice(0, -1);
+        }
+
+        let finalOutput = new Function(`return ${cleanInput}`)();
+        
+        // Round to avoid common JavaScript float bugs
+        if (finalOutput.toString().includes('.') && finalOutput.toString().split('.')[1].length > 8) {
+          finalOutput = parseFloat(finalOutput.toFixed(8));
+        }
+
+        currentInput = finalOutput.toString();
+        displayView.innerText = currentInput;
+        hasCalculated = true;
+      } catch (error) {
+        displayView.innerText = 'Error';
+        currentInput = '';
+      }
+    }
+
+    // HANDLES INSTANT ADVANCED MATH OPERATIONS (Squares, Roots, etc.)
+    function runInstantMath(type) {
+      if (currentInput === '' || currentInput === '-') return;
+      
+      // If there's a multi-step operation on screen, solve it first
+      if (['+', '-', '*', '/'].some(op => currentInput.includes(op))) {
+        calculate();
+      }
+
+      try {
+        let value = parseFloat(currentInput);
+        let result = 0;
+
+        switch(type) {
+          case 'square':
+            result = value * value;
+            break;
+          case 'cube':
+            result = value * value * value;
+            break;
+          case 'sqrt':
+            if (value < 0) throw new Error("Negative square root");
+            result = Math.sqrt(value);
+            break;
+          case 'cbrt':
+            result = Math.cbrt(value);
+            break;
+        }
+
+        // Float rounding check
+        if (result.toString().includes('.') && result.toString().split('.')[1].length > 8) {
+          result = parseFloat(result.toFixed(8));
+        }
+
+        currentInput = result.toString();
+        displayView.innerText = currentInput;
+        hasCalculated = true;
+      } catch (error) {
+        displayView.innerText = 'Error';
+        currentInput = '';
+      }
+    }
+  </script>
+</body>
+</html>
